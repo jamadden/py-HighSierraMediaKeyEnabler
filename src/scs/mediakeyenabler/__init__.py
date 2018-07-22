@@ -92,20 +92,21 @@ def tap_event_callback(_tap_proxy, event_type, event_ref, _user_info):
     if event_type != NX_SYSDEFINED:
         return event_ref
     pool = NSAutoreleasePool.alloc().init()
+
     try:
         event = NSEvent.eventWithCGEvent_(event_ref)
 
         if event.subtype() != NSEventSubtypeScreenChanged:
             # value of 8, for some reason.
-            return event_ref
+            return event_ref # pragma: no cover
 
         key_code = (event.data1() & 0xFFFF0000) >> 16
         if key_code not in _MEDIA_KEYS:
-            return event_ref
+            return event_ref # pragma: no cover
 
         iTunes = SBApplication.applicationWithBundleIdentifier_("com.apple.iTunes")
         if not iTunes.isRunning():
-            return event_ref
+            return event_ref # pragma: no cover
 
         key_flags = event.data1() & 0x0000FFFF
         key_is_pressed = (((key_flags & 0xFF00) >> 8)) == 0xA

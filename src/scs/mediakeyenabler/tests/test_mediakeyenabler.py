@@ -14,7 +14,7 @@ from __future__ import print_function
 import unittest
 try:
     from unittest import mock
-except ImportError:
+except ImportError: # pragma: no covers
     # Python 2
     import mock
 
@@ -36,6 +36,18 @@ class TestSetupFunctions(unittest.TestCase):
     def test_main(self, _mock_run):
         mediakeyenabler.main()
 
+PLAY_KEY_DOWN_DATA = (
+    b"\x00\x00\x00\x02\x00\x01@5"
+    b"\x00\x00\x00\x03\x00\x01@6\x00\x00\x00\x00\x00\x01@7\x00\x00\x00"
+    b"\x0e\x00\x02\xc08D\xea\xdf\x00Db\xa7\x00\x00\x02\xc09\x00\x00\x00"
+    b"\x00\x00\x00\x00\x00\x00\x01\x00:\xb5;\xb2M\x00\x01@P\x00\x01@;\x00"
+    b"\x00\x01\x00\x00\x01@3\x00\x00\x00\x00\x00\x01@4\x00\x00\x00\x00\x00"
+    b"\x01\x00\xa9\xb5;\xb2M\x00\x01@P\x00\x01@j\x00\x00\x00\x00\x00\x01@k"
+    b"\x00\x00\x05\xa0\x00\x01@S\x00\x00\x00\x08\x00\x0f@T\x00\x10\n\x00"
+    b"\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+)
 
 class TestCallback(unittest.TestCase):
 
@@ -58,3 +70,16 @@ class TestCallback(unittest.TestCase):
             )
 
         self.assertIn("eventWithCGEvent", exc.exception.args[0])
+
+    @mock.patch("scs.mediakeyenabler.SBApplication")
+    def test_play_key_down(self, _mock_application):
+        # Python 3 can directly pass the byte string to CGEventCreateFromData,
+        # but on Python 2 we need to make a CFDataRef
+        data = mediakeyenabler.Quartz.CFDataCreate(None, PLAY_KEY_DOWN_DATA, len(PLAY_KEY_DOWN_DATA))
+        event_ref = mediakeyenabler.Quartz.CGEventCreateFromData(None, data)
+        mediakeyenabler.tap_event_callback(
+            None,
+            mediakeyenabler.NX_SYSDEFINED,
+            event_ref,
+            None
+        )
