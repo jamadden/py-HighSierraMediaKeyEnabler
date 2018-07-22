@@ -13,6 +13,8 @@ with warnings.catch_warnings():
     # This produces lots of DeprecationWarnings on Python 3.7,
     # and there's nothing we can do about it.
     warnings.simplefilter('ignore')
+    import objc
+
     from Foundation import NSAutoreleasePool
     from Cocoa import NSEvent
     from Cocoa import NSEventSubtypeScreenChanged
@@ -91,9 +93,9 @@ _ns_event_subtype_to_str = {
 def tap_event_callback(_tap_proxy, event_type, event_ref, _user_info):
     if event_type != NX_SYSDEFINED:
         return event_ref
-    pool = NSAutoreleasePool.alloc().init()
 
-    try:
+
+    with objc.autorelease_pool():
         event = NSEvent.eventWithCGEvent_(event_ref)
 
         if event.subtype() != NSEventSubtypeScreenChanged:
@@ -115,8 +117,6 @@ def tap_event_callback(_tap_proxy, event_type, event_ref, _user_info):
             meth_name = _MEDIA_ACTIONS[key_code]
             getattr(iTunes, meth_name)()
 
-    finally:
-        del pool
 
 def _make_tap_port():
     port = CGEventTapCreate(
