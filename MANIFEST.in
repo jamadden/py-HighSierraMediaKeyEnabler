@@ -6,3 +6,4 @@ include tox.ini
 include .travis.yml
 include *.txt
 include .isort.cfg
+include .pylintrc
