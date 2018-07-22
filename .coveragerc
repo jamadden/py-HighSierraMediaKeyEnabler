@@ -1,0 +1,13 @@
+[run]
+source = scs.mediakeyenabler
+omit =
+    */flycheck_*py
+    */__main__.py
+
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError
+    raise AssertionError
+    if __name__ == .__main__.:

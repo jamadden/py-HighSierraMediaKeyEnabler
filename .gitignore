@@ -1,0 +1,23 @@
+*.py[cod]
+*.so
+# artifacts from cythonize
+*.c
+src/nti/externalization/*.html
+src/nti/externalization/internalization/*.html
+src/nti/externalization/externalization/*.html
+
+
+__pycache__/*
+benchmark_results/
+
+/.project
+/.pydevproject
+/.settings/
+
+# Distribution / packaging
+build/
+dist/
+/.tox/
+.coverage
+htmlcov/
+docs/_build/

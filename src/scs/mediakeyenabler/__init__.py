@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-
+Implementation of the media key capture.
 
 """
 from __future__ import absolute_import
@@ -13,7 +13,24 @@ with warnings.catch_warnings():
     # This produces lots of DeprecationWarnings on Python 3.7,
     # and there's nothing we can do about it.
     warnings.simplefilter('ignore')
+    from Foundation import NSAutoreleasePool
+    from Cocoa import NSEvent
+    from Cocoa import NSEventSubtypeScreenChanged
+
     import Quartz
+
+    from Quartz import CGEventTapCreate
+    from Quartz import CFRunLoopRun
+    from Quartz import CFRunLoopAddSource
+    from Quartz import CFRunLoopGetCurrent
+    from Quartz import CFMachPortCreateRunLoopSource
+
+    from Quartz import kCFRunLoopCommonModes
+    from Quartz import kCFAllocatorDefault
+    from Quartz import kCGSessionEventTap
+    from Quartz import kCGHeadInsertEventTap
+    from Quartz import kCGEventTapOptionDefault
+
     from ScriptingBridge import SBApplication
     from PyObjCTools import AppHelper
 
@@ -71,14 +88,14 @@ _ns_event_subtype_to_str = {
     if name.startswith('NSEventSub')
 }
 
-def tap_event_callback(tap_proxy, event_type, event_ref, user_info):
+def tap_event_callback(_tap_proxy, event_type, event_ref, _user_info):
     if event_type != NX_SYSDEFINED:
         return event_ref
-    pool = Quartz.NSAutoreleasePool.alloc().init()
+    pool = NSAutoreleasePool.alloc().init()
     try:
-        event = Quartz.NSEvent.eventWithCGEvent_(event_ref)
+        event = NSEvent.eventWithCGEvent_(event_ref)
 
-        if event.subtype() != Quartz.NSEventSubtypeScreenChanged:
+        if event.subtype() != NSEventSubtypeScreenChanged:
             # value of 8, for some reason.
             return event_ref
 
@@ -101,13 +118,13 @@ def tap_event_callback(tap_proxy, event_type, event_ref, user_info):
         del pool
 
 def _make_tap_port():
-    port = Quartz.CGEventTapCreate(
+    port = CGEventTapCreate(
         # Listen for events in this login section
-        Quartz.kCGSessionEventTap,
+        kCGSessionEventTap,
         # Get them first
-        Quartz.kCGHeadInsertEventTap,
+        kCGHeadInsertEventTap,
         # We are an active filter
-        Quartz.kCGEventTapOptionDefault,
+        kCGEventTapOptionDefault,
         # Events from the system
         NX_SYSDEFINEDMASK,
         # event handler
@@ -117,15 +134,17 @@ def _make_tap_port():
     return port
 
 def _make_run_loop_source(port):
-    return Quartz.CFMachPortCreateRunLoopSource(Quartz.kCFAllocatorDefault,
-                                                port,
-                                                0)
+    source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault,
+                                           port,
+                                           0)
+    assert source is not None
+    CFRunLoopAddSource(CFRunLoopGetCurrent(),
+                       source,
+                       kCFRunLoopCommonModes)
+    return source
 
-def run_run_loop(source):
-    Quartz.CFRunLoopAddSource(Quartz.CFRunLoopGetCurrent(),
-                              source,
-                              Quartz.kCFRunLoopCommonModes)
-    Quartz.CFRunLoopRun()
+def _run_run_loop():
+    CFRunLoopRun()
 
 def main():
     # This gets Ctrl-C handling working when we're in the
@@ -135,9 +154,9 @@ def main():
     port = _make_tap_port()
     assert port is not None
     run_source = _make_run_loop_source(port)
-    print(run_source)
+
     assert run_source is not None
-    run_run_loop(run_source)
+    _run_run_loop()
 
 
 if __name__ == '__main__':

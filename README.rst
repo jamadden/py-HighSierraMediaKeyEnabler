@@ -11,6 +11,12 @@ Safari window, and if TweetDeck has tried to send a notification,
 Safari would grab the media keys to just replay the tweet sound; the
 only way to get them back to iTunes was to click the mouse---ugh!)
 
+Using
+=====
+
+After installing, you will have a command ``mediakeyenabler``. Run it.
+End it with Ctrl-C or sending the equivalent signal to the PID.
+
 Known Limitations
 =================
 

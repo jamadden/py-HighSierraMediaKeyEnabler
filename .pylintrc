@@ -98,7 +98,7 @@ ignored-classes=SSLContext, SSLSocket, greenlet, Greenlet, parent, dead
 # (useful for modules/projects where namespaces are manipulated during runtime
 # and thus existing member attributes cannot be deduced by static analysis. It
 # supports qualified module names, as well as Unix pattern matching.
-ignored-modules=Quartz
+ignored-modules=Quartz,Foundation,ScriptingBridge,Cocoa
 
 [DESIGN]
 max-attributes=12
@@ -109,4 +109,4 @@ bad-functions=input
 # Prospector turns ot unsafe-load-any-extension by default, but
 # pylint leaves it off. This is the proximal cause of the
 # undefined-all-variable crash.
-unsafe-load-any-extension = no
+unsafe-load-any-extension = yes
