@@ -2,7 +2,7 @@
  Changes
 =========
 
-0.0.1 (unreleased)
+0.0.1 (2018-07-22)
 ==================
 
 - Initial release.
