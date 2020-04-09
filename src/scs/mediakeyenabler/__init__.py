@@ -17,7 +17,12 @@ with warnings.catch_warnings():
 
     from Foundation import NSAutoreleasePool
     from Cocoa import NSEvent
-    from Cocoa import NSEventSubtypeScreenChanged
+    try:
+        from Cocoa import NSEventSubtypeScreenChanged
+    except ImportError: # pragma: no cover
+        # The upstream pyobjc uses the first version. This
+        # version is for Apple's bundled version.
+        from Quartz import NSEventSubtypeScreenChanged
 
     import Quartz
 
@@ -90,12 +95,24 @@ _ns_event_subtype_to_str = {
     if name.startswith('NSEventSub')
 }
 
+try:
+    autorelease_pool = objc.autorelease_pool
+except AttributeError: # pragma: no cover
+    # As for NSEventSubtypeScreenChanged
+    from contextlib import contextmanager
+    @contextmanager
+    def autorelease_pool():
+        pool = NSAutoreleasePool.alloc().init()
+        yield pool
+
+
 def tap_event_callback(_tap_proxy, event_type, event_ref, _user_info):
+
     if event_type != NX_SYSDEFINED:
         return event_ref
 
 
-    with objc.autorelease_pool():
+    with autorelease_pool():
         event = NSEvent.eventWithCGEvent_(event_ref)
 
         if event.subtype() != NSEventSubtypeScreenChanged:
@@ -106,7 +123,12 @@ def tap_event_callback(_tap_proxy, event_type, event_ref, _user_info):
         if key_code not in _MEDIA_KEYS:
             return event_ref # pragma: no cover
 
-        iTunes = SBApplication.applicationWithBundleIdentifier_("com.apple.iTunes")
+        iTunes = None
+        for bundle_name in 'com.apple.Music', 'com.apple.iTunes':
+            iTunes = SBApplication.applicationWithBundleIdentifier_(bundle_name)
+            if iTunes is not None:
+                break
+
         if not iTunes.isRunning():
             return event_ref # pragma: no cover
 

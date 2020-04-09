@@ -1,15 +1,16 @@
-=================================
- Media Keys on macOS High Sierra
-=================================
+==================================
+ Media Keys on macOS High Sierra+
+==================================
 
 This project is a version of `HighSierraMediaKeyEnabler`_ written in
 Python for simplicity using PyObjC.
 
 In short, it makes it so that Safari cannot steal the media keys: the
-media keys always control iTunes. (I usually have TweetDeck open in a
-Safari window, and if TweetDeck has tried to send a notification,
-Safari would grab the media keys to just replay the tweet sound; the
-only way to get them back to iTunes was to click the mouse---ugh!)
+media keys always control iTunes (Music on Catalina). (I usually have
+TweetDeck open in a Safari window, and if TweetDeck has tried to send
+a notification, Safari would grab the media keys to just replay the
+tweet sound; the only way to get them back to iTunes was to click the
+mouse---ugh!)
 
 Using
 =====
